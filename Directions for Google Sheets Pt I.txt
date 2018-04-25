@@ -1,0 +1,98 @@
+from https://www.hackster.io/gusgonnet/pushing-data-to-google-docs-02f9c4
+
+Story
+In this article I will explain how your hardware can push data into a Google spreadsheet.
+
+Push Versus Poll
+In the poll mechanism, as described in my previous article, the Google spreadsheet runs a script that sends a request to fetch data from our hardware at a regular interval.
+
+You can use the poll mechanism when your hardware is online all the time, for instance to capture sensor data that changes slowly over time (example: the temperature of your pool).
+
+In the push mechanism, described in the current article, your hardware sends a request with data to a Google server running a script that will, in turn, store that data received in a Google spreadsheet.
+
+The pull mechanism is ideal when your hardware might be sleeping from time to time (hence not reachable), to capture a specific event (example: your garage door is opening) or to store a log of what your hardware is doing.
+
+Note: I used a Particle Photon in this project, but I think the mechanism can be helpful with other hardware in general, like Arduinos and Raspberry Pies.
+
+Setup the Google Docs Side
+Please follow the instructions on this site (SEE DIRECTIONS FOR GOOGLE SHEETS.TXT). In particular, follow ONLY these two sections:
+
+"The sheet"
+"The script"
+Setup your Hardware to Push Data - General Case
+Note: if you have a Particle hardware please skip this section.
+
+You need to use an http library that allows your hardware to send the following http POST request:
+
+POST / HTTP/1.1
+Host: 127.0.0.1:8070
+Connection: keep-alive
+Content-Length: 71
+Accept: */*
+Origin: null
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Accept-Encoding: gzip, deflate
+Accept-Language: en,en-US;q=0.8,en-CA;q=0.6,es-419;q=0.4,es;q=0.2,fr-CA;q=0.2,fr;q=0.2
+name=name123&email=email%40addr.com&phone=5144443322&message=message123
+That is what the ajax call in the demo page of the tutorial I mentioned earlier is sending to the Google servers (don't worry, it's encrypted over HTTPS).
+
+What I think matters is that the POST request contains this:
+
+a header with content-type application/x-www-form-urlencoded; charset=UTF-8
+a body containing the data to store in the Google spreadsheet in this particular format: name=name123&email=email%40addr.com&phone=5144443322&message=message123
+Example:
+
+POST / HTTP/1.1
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+name=name123&email=email%40addr.com&phone=5144443322&message=message123
+NOTE: the %40 that you see in the email parameter is the @ sign url encoded, If I'm not mistaken.
+
+Setup your Hardware to Push Data - Particle's Case
+In the case you are using a Particle, you will need two things:
+
+configure a webhook
+code a publish command in your firmware to trigger that webhook with the wanted information
+How this works:
+
+STEP 1: the webhook
+
+Create a particle webhook with the following information:
+
+event name: googleDocs
+
+full url: what you get from google docs (example: https://script.google.com/macros/s/1236278936489127634-2876348/exec)
+
+method: POST
+
+form (one way to look at it): key=name value={{my-name}}
+
+form in JSON (another way to look at it):
+
+{
+  "name": "{{my-name}}"
+}
+headers: "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+
+include defaults: no
+
+Enforce SSL: yes
+
+Here's a screenshot of the webhook:
+
+STEP 2: the firmware
+
+Then in your firmware, add a line like this one:
+
+String tempMessage = "Your garage door is opening";
+Particle.publish("googleDocs", "{\"my-name\":\"" + tempMessage + "\"}", 60, PRIVATE);
+Note: I'm using a dynamic custom field feature on webhooks that I learned in this discussion. You can read a bit more in this tutorial (search for mustache since the link seems not to work perfectly).
+
+STEP 3: verify the console logs
+
+Every time your hardware triggers the webhook you should see something like this in your Particle console logs:
+
+Results
+Here you can see how my hardware is filling up my Google spreadsheet:
+
+Note: There are limits on how many times per day the Google API can be hit by your hardware. I'm pretty sure you would be able to pay Google for increasing your traffic quota, but I haven't looked into it.

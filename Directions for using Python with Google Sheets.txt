@@ -1,0 +1,71 @@
+https://developers.google.com/sheets/api/quickstart/python
+
+Python Quickstart
+Complete the steps described in the rest of this page, and in about five minutes you'll have a simple Python command-line application that makes requests to the Google Sheets API.
+
+Prerequisites
+To run this quickstart, you'll need:
+
+Python 2.6 or greater.
+The pip package management tool.
+A Google account.
+Step 1: Turn on the Google Sheets API
+Use this wizard to create or select a project in the Google Developers Console and automatically turn on the API. Click Continue, then Go to credentials.
+On the Add credentials to your project page, click the Cancel button.
+At the top of the page, select the OAuth consent screen tab. Select an Email address, enter a Product name if not already set, and click the Save button.
+Select the Credentials tab, click the Create credentials button and select OAuth client ID.
+Select the application type Other, enter the name "Google Sheets API Quickstart", and click the Create button.
+Click OK to dismiss the resulting dialog.
+Click the file_download (Download JSON) button to the right of the client ID.
+Move this file to your working directory and rename it client_secret.json.
+Step 2: Install the Google Client Library
+Run the following command to install the library using pip:
+
+pip install --upgrade google-api-python-client
+See the library's installation page for the alternative installation options.
+
+Step 3: Set up the sample
+Create a file named quickstart.py in your working directory and copy in the following code:
+
+"""
+Shows basic usage of the Sheets API. Prints values from a Google Spreadsheet.
+"""
+from __future__ import print_function
+from apiclient.discovery import build
+from httplib2 import Http
+from oauth2client import file, client, tools
+
+# Setup the Sheets API
+SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
+store = file.Storage('credentials.json')
+creds = store.get()
+if not creds or creds.invalid:
+    flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
+    creds = tools.run_flow(flow, store)
+service = build('sheets', 'v4', http=creds.authorize(Http()))
+
+# Call the Sheets API
+SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
+RANGE_NAME = 'Class Data!A2:E'
+result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID,
+                                             range=RANGE_NAME).execute()
+values = result.get('values', [])
+if not values:
+    print('No data found.')
+else:
+    print('Name, Major:')
+    for row in values:
+        # Print columns A and E, which correspond to indices 0 and 4.
+        print('%s, %s' % (row[0], row[4]))
+quickstart.py
+
+Step 4: Run the sample
+Run the sample using the following command:
+
+python quickstart.py
+The sample will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
+
+If you are not already logged into your Google account, you will be prompted to log in. If you are logged into multiple Google accounts, you will be asked to select one account to use for the authorization.
+
+Click the Accept button.
+The sample will proceed automatically, and you may close the window/tab.
