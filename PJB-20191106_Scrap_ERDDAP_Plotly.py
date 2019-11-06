@@ -31,67 +31,67 @@ df_ahl_seaphox = e.to_pandas()
 df_ahl_seaphox.head()
 
 
-# In[16]:
+# In[20]:
 
 
 # Create traces
 trace1 = go.Scatter(
+    x = df_ahl_seaphox['time (UTC)'], 
+    y = df_ahl_seaphox['Temp_C'],
+    mode = 'lines+markers',
+    name = 'Temperature'
+)
+
+trace2 = go.Scatter(
+    x = df_ahl_seaphox['time (UTC)'], 
+    y = df_ahl_seaphox['Pressure_dbar (dbar)'],
+    mode = 'lines+markers',
+    name = 'Pressure'
+)
+
+trace3 = go.Scatter(
+    x = df_ahl_seaphox['time (UTC)'], 
+    y = df_ahl_seaphox['Sal_PSS'],
+    mode = 'lines+markers',
+    name = 'Salinity'
+)
+
+trace4 = go.Scatter(
     x = df_ahl_seaphox['time (UTC)'], 
     y = df_ahl_seaphox['pH_total'],
     mode = 'lines+markers',
     name = 'pH'
 )
 
-trace2 = go.Scatter(
+trace5 = go.Scatter(
     x = df_ahl_seaphox['time (UTC)'], 
     y = df_ahl_seaphox['O2_umol_per_kg'],
     mode = 'lines+markers',
     name = 'O2'
 )
 
-# trace3 = go.Scatter(
-#     x = df_ahl_seaphox['time (UTC)'], 
-#     y = az_m_s2,
-#     mode = 'lines+markers',
-#     name = 'Az (m/s2)'
-# )
-
-# trace4 = go.Scatter(
-#     x = df_ahl_seaphox['time (UTC)'], 
-#     y = df_ahl_seaphox['vel (m/s)'],
-#     mode = 'lines+markers', 
-#     name = 'Vel (m/s)'
-# )
-
-# trace5 = go.Scatter(
-#     x = df_ahl_seaphox['time (UTC)'], 
-#     y = df_ahl_seaphox['displacement (m)'],
-#     mode = 'lines+markers',
-#     name = 'Disp (m)'
-# )
-
-# trace6 = go.Scatter(
-#     x = df_ahl_seaphox['time (UTC)'], 
-#     y = df_ahl_seaphox['temp'],
-#     mode = 'lines+markers',
-#     name = 'Temp (oC)'
-# )
+trace6 = go.Scatter(
+    x = df_ahl_seaphox['time (UTC)'], 
+    y = df_ahl_seaphox['Omega_Ar'],
+    mode = 'lines+markers',
+    name = 'Ω_Ar'
+)
 
 # data = [trace1, trace2]
 
-fig = tools.make_subplots(rows = 4, cols = 1, shared_xaxes=True)
+fig = tools.make_subplots(rows = 6, cols = 1, shared_xaxes=True)
 
 fig.append_trace(trace1, 1, 1)
 fig.append_trace(trace2, 2, 1)
-# fig.append_trace(trace3, 1, 1)
-# fig.append_trace(trace4, 2, 1)
-# fig.append_trace(trace5, 3, 1)
-# fig.append_trace(trace6, 4, 1)
+fig.append_trace(trace3, 3, 1)
+fig.append_trace(trace4, 4, 1)
+fig.append_trace(trace5, 5, 1)
+fig.append_trace(trace6, 6, 1)
 
 
 # Plot and embed here
 py.iplot(fig, filename='ahl_subplots.html')
-plotly.offline.plot(fig, filename='ahl_subplots.html')
+plotly.offline.plot(fig, filename='../ahl_subplots.html')
 
 
 # In[ ]:
